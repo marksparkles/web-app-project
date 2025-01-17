@@ -4,13 +4,14 @@ import Image from 'next/image';
 
 interface HeaderProps {
   title: string;
+  style?: React.CSSProperties;
 }
 
-const Header: React.FC<HeaderProps> = ({ title }) => {
+const Header: React.FC<HeaderProps> = ({ title, style }) => {
   return (
-    <header className="bg-primary text-white text-center py-3 position-relative">
+    <header className="bg-primary text-white text-center py-3 position-relative" style={style}>
       <Image
-        src="https://via.placeholder.com/50x50.png?text=Logo"
+        src="/placeholder.svg"
         alt="Company Logo"
         id="company-logo"
         width={50}

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import Header from '@/components/common/Header';
-import BottomNav from '@/components/BottomNav';
-import { getJobDetailsByCode } from '@/services/api';
+import Header from '../components/common/Header';
+import BottomNav from '../components/BottomNav';
+import { getJobDetailsByCode } from '../services/api';
 
 interface JobDetails {
   job_id: number;
@@ -18,6 +18,13 @@ interface Task {
   task_id: number;
   task_description: string;
   status: string;
+}
+
+// Add getStaticProps for static generation
+export async function getStaticProps() {
+  return {
+    props: {}, // Will be passed to the page component as props
+  };
 }
 
 const HomePage: React.FC = () => {

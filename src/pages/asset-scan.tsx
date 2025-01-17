@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import Header from '@/components/common/Header';
-import BottomNav from '@/components/BottomNav';
-import ImageGallery from '@/components/ImageGallery';
-import AssetDetailsSection from '@/components/AssetDetailsSection';
-import { addImage, identifyAsset, getAssetDetails } from '@/services/api';
+import Header from '../components/common/Header';
+import BottomNav from '../components/BottomNav';
+import ImageGallery from '../components/ImageGallery';
+import AssetDetailsSection from '../components/AssetDetailsSection';
+import { addImage, identifyAsset, getAssetDetails } from '../services/api';
 
 interface AssetDetails {
   name: string;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { insertAssetDetails } from '../services/api';
+import { insertAssetDetails } from '@/services/api';
 
 interface AssetDetails {
   name: string;
@@ -9,7 +9,7 @@ interface AssetDetails {
   manufacturer: string;
   model: string;
   status?: string;
-  metadata?: any;
+  metadata?: any[];
 }
 
 interface AssetDetailsSectionProps {
@@ -41,11 +41,6 @@ const AssetDetailsSection: React.FC<AssetDetailsSectionProps> = ({
       return;
     }
 
-    if (!jobId) {
-      alert('Job ID is missing. Cannot update asset details.');
-      return;
-    }
-
     try {
       const details = {
         category: assetDetails.category,
@@ -57,7 +52,7 @@ const AssetDetailsSection: React.FC<AssetDetailsSectionProps> = ({
       };
 
       await insertAssetDetails(jobId, assetDetails.name, assetStatus || assetDetails.status || '', details);
-       
+      
       setAssetDetails({
         ...assetDetails,
         status: assetStatus || assetDetails.status,
@@ -70,7 +65,12 @@ const AssetDetailsSection: React.FC<AssetDetailsSectionProps> = ({
   return (
     <>
       {photos.length > 0 && (
-        <button id="identify-asset-button" className="btn btn-primary w-100 mb-4" onClick={handleIdentifyAsset} disabled={loadingAssetDetails}>
+        <button 
+          id="identify-asset-button" 
+          className="btn btn-primary w-100 mb-4" 
+          onClick={handleIdentifyAsset} 
+          disabled={loadingAssetDetails}
+        >
           {loadingAssetDetails ? 'Identifying...' : 'Identify Asset'}
         </button>
       )}
@@ -114,16 +114,7 @@ const AssetDetailsSection: React.FC<AssetDetailsSectionProps> = ({
                 onChange={(e) => setAssetDetails({ ...assetDetails, description: e.target.value })}
               />
             </li>
-            <li className="list-groupI understand. I'll continue the text stream from the cut-off point, maintaining coherence and consistency with the previous content. Here's the continuation:
-
-<cut_off_point>
-value })}
-              />
-            </li>
-            <li className="list-group
-</cut_off_point>
-
--item">
+            <li className="list-group-item">
               <label><strong>Manufacturer:</strong></label>
               <input
                 type="text"
@@ -149,20 +140,54 @@ value })}
         <section id="update-status" className="mb-4">
           <h2>Update Asset Status</h2>
           <div className="btn-group w-100" role="group" aria-label="Asset Status">
-            <input type="radio" className="btn-check" name="assetStatus" id="statusInstalled" value="Installed" onChange={(e) => setAssetStatus(e.target.value)} autoComplete="off" />
-            <label className="btn btn-outline-primary" htmlFor="statusInstalled">Installed</label>
+            <input
+              type="radio"
+              className="btn-check"
+              name="assetStatus"
+              id="statusInstalled"
+              value="Installed"
+              onChange={(e) => setAssetStatus(e.target.value)}
+              autoComplete="off"
+            />
+            <label className="btn btn-outline-primary" htmlFor="statusInstalled">
+              Installed
+            </label>
 
-            <input type="radio" className="btn-check" name="assetStatus" id="statusServiced" value="Serviced" onChange={(e) => setAssetStatus(e.target.value)} autoComplete="off" />
-            <label className="btn btn-outline-primary" htmlFor="statusServiced">Serviced</label>
+            <input
+              type="radio"
+              className="btn-check"
+              name="assetStatus"
+              id="statusServiced"
+              value="Serviced"
+              onChange={(e) => setAssetStatus(e.target.value)}
+              autoComplete="off"
+            />
+            <label className="btn btn-outline-primary" htmlFor="statusServiced">
+              Serviced
+            </label>
 
-            <input type="radio" className="btn-check" name="assetStatus" id="statusNeedsRepair" value="Needs Repair" onChange={(e) => setAssetStatus(e.target.value)} autoComplete="off" />
-            <label className="btn btn-outline-primary" htmlFor="statusNeedsRepair">Needs Repair</label>
+            <input
+              type="radio"
+              className="btn-check"
+              name="assetStatus"
+              id="statusNeedsRepair"
+              value="Needs Repair"
+              onChange={(e) => setAssetStatus(e.target.value)}
+              autoComplete="off"
+            />
+            <label className="btn btn-outline-primary" htmlFor="statusNeedsRepair">
+              Needs Repair
+            </label>
           </div>
         </section>
       )}
 
       {showUpdateOptions && (
-        <button id="update-asset-button" className="btn btn-success w-100" onClick={handleInsertAssetDetails}>
+        <button
+          id="update-asset-button"
+          className="btn btn-success w-100"
+          onClick={handleInsertAssetDetails}
+        >
           Update Asset
         </button>
       )}

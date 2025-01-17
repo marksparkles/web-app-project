@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getImages, deleteImage } from '../services/api';
+import { getImages, deleteImage } from '@/services/api';
 
 interface Photo {
   image_data: string;
@@ -55,10 +55,6 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ jobId, addImage, type, fetc
       video.srcObject = stream;
       await video.play();
 
-      const videoWidth = video.videoWidth;
-      const videoHeight = video.videoHeight;
-      const aspectRatio = videoWidth / videoHeight;
-
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
 
@@ -73,22 +69,14 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ jobId, addImage, type, fetc
         captureArea.appendChild(captureButton);
 
         captureButton.addEventListener('click', async () => {
-          const captureWidth = 640;
-          const captureHeight = captureWidth / aspectRatio;
-          canvas.width = captureWidth;
-          canvas.height = captureHeight;
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
           context?.drawImage(video, 0, 0, canvas.width, canvas.height);
           
           let dataUrl = canvas.toDataURL('image/jpeg', 0.7);
 
           stream.getTracks().forEach(track => track.stop());
           captureArea.innerHTML = '';
-
-          let quality = 0.7;
-          while (dataUrl.length > 1_000_000 && quality > 0.5) {
-            quality -= 0.1;
-            dataUrl = canvas.toDataURL('image/jpeg', quality);
-          }
 
           try {
             const response = await addImage({ job_id: jobId, type: type, image_data: dataUrl.split(',')[1] });
@@ -114,11 +102,6 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ jobId, addImage, type, fetc
   };
 
   const handlePhotoDelete = async (imageId: number, index: number) => {
-    if (!imageId) {
-      console.error('Image ID is missing for deletion');
-      return;
-    }
-
     try {
       await deleteImage(imageId);
       setPhotos((prevPhotos) => prevPhotos.filter((_, i) => i !== index));
@@ -134,6 +117,15 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ jobId, addImage, type, fetc
   return (
     <section id="image-gallery" className="mb-4">
       <h2>{`${type.charAt(0).toUpperCase() + type.slice(1)} Images`}</h2>
+      <div id="capture-area" className="mb-3"></div>
+      <button
+        className="btn btn-primary w-100 mb-3"
+        onClick={handlePhotoCapture}
+        disabled={photos.length >= 6}
+      >
+        <i className="bi bi-camera-fill me-2"></i>
+        Take Photo
+      </button>
       <div id="images" className="row g-3">
         {photos.map((photo, index) => (
           <div className="col-4" key={index}>
@@ -146,13 +138,14 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ jobId, addImage, type, fetc
               className="btn btn-danger btn-sm mt-2 w-100"
               onClick={() => handlePhotoDelete(photo.image_id, index)}
             >
-              Delete Image
+              Delete
             </button>
           </div>
         ))}
-        {photos.length < 6 && (
-          <div className="col-4">
-            <button
-              id="add-image-button"
-              className="btn btn-
+      </div>
+    </section>
+  );
+};
+
+export default ImageGallery;
 
