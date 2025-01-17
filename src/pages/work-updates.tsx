@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Header from '@/components/Header';
+import Header from '@/components/common/Header';
 import BottomNav from '@/components/BottomNav';
 import VoiceNoteRecorder from '@/components/VoiceNoteRecorder';
 import { addImage, getJobDetails, getVoiceNotes } from '@/services/api';
@@ -33,6 +33,9 @@ const WorkUpdatesPage: React.FC = () => {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [voiceNotes, setVoiceNotes] = useState<VoiceNote[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useStateI understand. I'll continue the text stream from the cut-off point, maintaining coherence and consistency with the previous content. Here's the continuation:
+
+loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {

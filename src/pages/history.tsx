@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Header from '@/components/Header';
+import Header from '@/components/common/Header';
 import BottomNav from '@/components/BottomNav';
 
 interface HistoryEntry {
@@ -37,7 +37,15 @@ const HistoryPage: React.FC = () => {
       <main className="container my-4">
         {/* Filters */}
         <section id="filters" className="mb-4">
-          <div className="btn-group w-100" role="group" aria-label="History Filters">
+          I understand. I'll continue the text stream from the cut-off point, maintaining coherence and consistency with the previous content. Here's the continuation:
+
+<cut_off_point>
+Filters */}
+        <section id="filters" className="mb-4">
+          
+</cut_off_point>
+
+<div className="btn-group w-100" role="group" aria-label="History Filters">
             <button type="button" className={`btn btn-outline-primary ${filter === 'all' ? 'active' : ''}`} onClick={() => handleFilterClick('all')}>All</button>
             <button type="button" className={`btn btn-outline-primary ${filter === 'reports' ? 'active' : ''}`} onClick={() => handleFilterClick('reports')}>Reports</button>
             <button type="button" className={`btn btn-outline-primary ${filter === 'safety' ? 'active' : ''}`} onClick={() => handleFilterClick('safety')}>Safety Issues</button>

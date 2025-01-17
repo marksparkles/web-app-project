@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Header from '@/components/Header';
+import Header from '@/components/common/Header';
 import BottomNav from '@/components/BottomNav';
 import ImageGallery from '@/components/ImageGallery';
 import AssetDetailsSection from '@/components/AssetDetailsSection';
@@ -69,7 +69,7 @@ const AssetScanPage: React.FC = () => {
       alert('Please add an image before identifying the asset.');
       return;
     }
-  
+
     setLoadingAssetDetails(true);
     
     try {
@@ -98,7 +98,7 @@ const AssetScanPage: React.FC = () => {
       setLoadingAssetDetails(false);
     }
   };
-  
+
   if (error) {
     return (
       <div className="text-center my-5">

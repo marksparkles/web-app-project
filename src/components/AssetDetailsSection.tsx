@@ -40,12 +40,12 @@ const AssetDetailsSection: React.FC<AssetDetailsSectionProps> = ({
       alert('No asset details found to update.');
       return;
     }
-  
+
     if (!jobId) {
       alert('Job ID is missing. Cannot update asset details.');
       return;
     }
-  
+
     try {
       const details = {
         category: assetDetails.category,
@@ -55,7 +55,7 @@ const AssetDetailsSection: React.FC<AssetDetailsSectionProps> = ({
         model: assetDetails.model,
         metadata: assetDetails.metadata,
       };
-  
+
       await insertAssetDetails(jobId, assetDetails.name, assetStatus || assetDetails.status || '', details);
        
       setAssetDetails({
@@ -114,7 +114,16 @@ const AssetDetailsSection: React.FC<AssetDetailsSectionProps> = ({
                 onChange={(e) => setAssetDetails({ ...assetDetails, description: e.target.value })}
               />
             </li>
-            <li className="list-group-item">
+            <li className="list-groupI understand. I'll continue the text stream from the cut-off point, maintaining coherence and consistency with the previous content. Here's the continuation:
+
+<cut_off_point>
+value })}
+              />
+            </li>
+            <li className="list-group
+</cut_off_point>
+
+-item">
               <label><strong>Manufacturer:</strong></label>
               <input
                 type="text"

@@ -42,7 +42,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ jobId, addImage, type, fetc
       alert('Maximum of 6 images allowed.');
       return;
     }
-  
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment' }
@@ -54,24 +54,24 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ jobId, addImage, type, fetc
       video.style.height = 'auto';
       video.srcObject = stream;
       await video.play();
-  
+
       const videoWidth = video.videoWidth;
       const videoHeight = video.videoHeight;
       const aspectRatio = videoWidth / videoHeight;
-  
+
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
-  
+
       const captureArea = document.getElementById('capture-area');
       if (captureArea) {
         captureArea.innerHTML = '';
         captureArea.appendChild(video);
-  
+
         const captureButton = document.createElement('button');
         captureButton.innerText = 'Capture Photo';
         captureButton.className = 'btn btn-primary w-100 w-md-auto mt-3';
         captureArea.appendChild(captureButton);
-  
+
         captureButton.addEventListener('click', async () => {
           const captureWidth = 640;
           const captureHeight = captureWidth / aspectRatio;
@@ -80,19 +80,19 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ jobId, addImage, type, fetc
           context?.drawImage(video, 0, 0, canvas.width, canvas.height);
           
           let dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-  
+
           stream.getTracks().forEach(track => track.stop());
           captureArea.innerHTML = '';
-  
+
           let quality = 0.7;
           while (dataUrl.length > 1_000_000 && quality > 0.5) {
             quality -= 0.1;
             dataUrl = canvas.toDataURL('image/jpeg', quality);
           }
-  
+
           try {
             const response = await addImage({ job_id: jobId, type: type, image_data: dataUrl.split(',')[1] });
-  
+
             if (response.body && response.body.record && response.body.record.image_id) {
               setPhotos((prevPhotos) => [
                 ...prevPhotos,
@@ -154,19 +154,5 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ jobId, addImage, type, fetc
           <div className="col-4">
             <button
               id="add-image-button"
-              className="btn btn-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center"
-              onClick={handlePhotoCapture}
-            >
-              <i className="bi bi-plus-circle-fill mb-2" style={{ fontSize: '2rem' }}></i>
-              <span>Add Image</span>
-            </button>
-          </div>
-        )}
-      </div>
-      <div id="capture-area" className="mt-3"></div>
-    </section>
-  );
-};
-
-export default ImageGallery;
+              className="btn btn-
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Header from '@/components/Header';
+import Header from '@/components/common/Header';
 import BottomNav from '@/components/BottomNav';
 import VoiceNoteRecorder from '@/components/VoiceNoteRecorder';
 import { getVoiceNotes } from '@/services/api';
