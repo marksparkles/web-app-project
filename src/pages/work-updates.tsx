@@ -33,9 +33,6 @@ const WorkUpdatesPage: React.FC = () => {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [voiceNotes, setVoiceNotes] = useState<VoiceNote[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useStateI understand. I'll continue the text stream from the cut-off point, maintaining coherence and consistency with the previous content. Here's the continuation:
-
-loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
