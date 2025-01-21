@@ -1,8 +1,11 @@
+"use client"
+
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
 
 interface AssetDetailsProps {
   jobId: string
@@ -22,14 +25,14 @@ interface AssetDetails {
   }
 }
 
-export function AssetDetails({ jobId }: AssetDetailsProps) {
+export default function AssetDetails({ jobId }: AssetDetailsProps) {
   const [asset, setAsset] = useState<AssetDetails | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchAssetDetails()
-  }, [jobId])
-
-  const fetchAssetDetails = async () => {
+  const fetchAssetDetails = useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
     try {
       const response = await fetch(`/api/jobs/${jobId}/assets`)
       if (!response.ok) throw new Error("Failed to fetch asset details")
@@ -37,13 +40,22 @@ export function AssetDetails({ jobId }: AssetDetailsProps) {
       setAsset(data)
     } catch (err) {
       console.error("Error fetching asset details:", err)
+      setError("Failed to load asset details. Please try again.")
+    } finally {
+      setIsLoading(false)
     }
-  }
+  }, [jobId])
+
+  useEffect(() => {
+    fetchAssetDetails()
+  }, [fetchAssetDetails])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!asset) return
 
+    setIsLoading(true)
+    setError(null)
     try {
       const response = await fetch(`/api/jobs/${jobId}/assets`, {
         method: asset.asset_id ? "PUT" : "POST",
@@ -56,10 +68,15 @@ export function AssetDetails({ jobId }: AssetDetailsProps) {
       alert("Asset details saved successfully")
     } catch (err) {
       console.error("Error saving asset details:", err)
+      setError("Failed to save asset details. Please try again.")
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  if (!asset) return <div>Loading asset details...</div>
+  if (isLoading) return <div>Loading asset details...</div>
+  if (error) return <div>Error: {error}</div>
+  if (!asset) return <div>No asset details found</div>
 
   return (
     <div className="mt-6">
@@ -67,7 +84,7 @@ export function AssetDetails({ jobId }: AssetDetailsProps) {
       <form onSubmit={handleSubmit}>
         <div className="grid gap-4">
           <div>
-            <label htmlFor="name">Name</label>
+            <Label htmlFor="name">Name</Label>
             <Input
               id="name"
               value={asset.name}
@@ -76,7 +93,7 @@ export function AssetDetails({ jobId }: AssetDetailsProps) {
             />
           </div>
           <div>
-            <label htmlFor="status">Status</label>
+            <Label htmlFor="status">Status</Label>
             <Input
               id="status"
               value={asset.status}
@@ -85,7 +102,7 @@ export function AssetDetails({ jobId }: AssetDetailsProps) {
             />
           </div>
           <div>
-            <label htmlFor="category">Category</label>
+            <Label htmlFor="category">Category</Label>
             <Input
               id="category"
               value={asset.details.category}
@@ -94,7 +111,7 @@ export function AssetDetails({ jobId }: AssetDetailsProps) {
             />
           </div>
           <div>
-            <label htmlFor="asset_condition">Condition</label>
+            <Label htmlFor="asset_condition">Condition</Label>
             <Input
               id="asset_condition"
               value={asset.details.asset_condition}
@@ -103,7 +120,7 @@ export function AssetDetails({ jobId }: AssetDetailsProps) {
             />
           </div>
           <div>
-            <label htmlFor="description">Description</label>
+            <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
               value={asset.details.description}
@@ -112,7 +129,7 @@ export function AssetDetails({ jobId }: AssetDetailsProps) {
             />
           </div>
           <div>
-            <label htmlFor="manufacturer">Manufacturer</label>
+            <Label htmlFor="manufacturer">Manufacturer</Label>
             <Input
               id="manufacturer"
               value={asset.details.manufacturer}
@@ -121,7 +138,7 @@ export function AssetDetails({ jobId }: AssetDetailsProps) {
             />
           </div>
           <div>
-            <label htmlFor="model">Model</label>
+            <Label htmlFor="model">Model</Label>
             <Input
               id="model"
               value={asset.details.model}
@@ -130,8 +147,8 @@ export function AssetDetails({ jobId }: AssetDetailsProps) {
             />
           </div>
         </div>
-        <Button type="submit" className="mt-4">
-          Save Asset Details
+        <Button type="submit" className="mt-4" disabled={isLoading}>
+          {isLoading ? "Saving..." : "Save Asset Details"}
         </Button>
       </form>
     </div>

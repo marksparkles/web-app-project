@@ -1,5 +1,6 @@
+"use client"
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
@@ -8,25 +9,28 @@ interface ImageUploadProps {
   jobId: string
 }
 
-export function ImageUpload({ jobId }: ImageUploadProps) {
+export default function ImageUpload({ jobId }: ImageUploadProps) {
   const [images, setImages] = useState<Array<{ image_id: string; image_data: string; type: string }>>([])
   const [newImage, setNewImage] = useState<File | null>(null)
   const [imageType, setImageType] = useState<string>("job")
+  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchImages()
-  }, [jobId])
-
-  const fetchImages = async () => {
+  const fetchImages = useCallback(async () => {
     try {
       const response = await fetch(`/api/jobs/${jobId}/images?type=${imageType}`)
       if (!response.ok) throw new Error("Failed to fetch images")
       const data = await response.json()
       setImages(data)
+      setError(null)
     } catch (err) {
       console.error("Error fetching images:", err)
+      setError("Failed to fetch images. Please try again.")
     }
-  }
+  }, [jobId, imageType])
+
+  useEffect(() => {
+    fetchImages()
+  }, [jobId, imageType, fetchImages])
 
   const handleImageUpload = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -44,8 +48,10 @@ export function ImageUpload({ jobId }: ImageUploadProps) {
       if (!response.ok) throw new Error("Failed to upload image")
       await fetchImages()
       setNewImage(null)
+      setError(null)
     } catch (err) {
       console.error("Error uploading image:", err)
+      setError("Failed to upload image. Please try again.")
     }
   }
 
@@ -56,13 +62,16 @@ export function ImageUpload({ jobId }: ImageUploadProps) {
       })
       if (!response.ok) throw new Error("Failed to delete image")
       await fetchImages()
+      setError(null)
     } catch (err) {
       console.error("Error deleting image:", err)
+      setError("Failed to delete image. Please try again.")
     }
   }
 
   return (
     <div className="mt-6">
+      {error && <p className="text-red-500 mb-2">{error}</p>}
       <h3 className="text-lg font-semibold mb-2">Images</h3>
       <form onSubmit={handleImageUpload} className="mb-4">
         <Input

@@ -1,5 +1,6 @@
+"use client"
+
 import React, { useState, useEffect } from "react"
-import { useRouter } from "next/router"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -23,14 +24,29 @@ interface Job {
   job_images: Array<{ image_id: string; image_data: string; type: string }>
 }
 
-export function JobDetails({ jobId }: { jobId: string }) {
+export default function JobDetails({ jobId }: { jobId: string }) {
   const [job, setJob] = useState<Job | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
+  // const router = useRouter()
 
   useEffect(() => {
-    fetchJobDetails()
+    const fetchData = async () => {
+      setIsLoading(true)
+      try {
+        const response = await fetch(`/api/jobs/${jobId}`)
+        if (!response.ok) throw new Error("Failed to fetch job details")
+        const data = await response.json()
+        setJob(data)
+      } catch (err) {
+        setError("Error fetching job details")
+        console.error(err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchData()
   }, [jobId])
 
   const fetchJobDetails = async () => {
