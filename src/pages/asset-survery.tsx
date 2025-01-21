@@ -3,10 +3,10 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
 import Header from "@/components/common/Header"
 import BottomNav from "@/components/BottomNav"
-import AssetForm from "@/components/AssetForm"
+import AssetForm from "@/components/ui/AssetForm"
 
 interface JobDetails {
-  job_id: number
+  job_id: string
   job_code: string
 }
 

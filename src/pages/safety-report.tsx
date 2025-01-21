@@ -5,10 +5,10 @@ import Header from "@/components/common/Header"
 import BottomNav from "@/components/BottomNav"
 import ImageGallery from "@/components/ImageGallery"
 import VoiceNoteRecorder from "@/components/VoiceNoteRecorder"
-import SafetyReportForm from "@/components/SafetyReportForm"
+import SafetyReportForm from "@/components/ui/SafetyReportForm"
 
 interface JobDetails {
-  job_id: number
+  job_id: string
   job_code: string
 }
 
@@ -29,7 +29,7 @@ const SafetyReportPage: React.FC = () => {
     }
   }, [])
 
-  const addImage = async (jobId: number, imageData: string, type: string) => {
+  const addImage = async (jobId: string, imageData: string, type: string) => {
     try {
       const response = await fetch(`/api/jobs/${jobId}/images`, {
         method: "POST",
