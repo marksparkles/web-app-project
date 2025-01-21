@@ -1,118 +1,72 @@
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import Header from '@/components/common/Header';
-import BottomNav from '@/components/BottomNav';
-import VoiceNoteRecorder from '@/components/VoiceNoteRecorder';
-import ImageGallery from '@/components/ImageGallery';
-import SafetyDescription from '@/components/SafetyDescription';
-import { addImage, addSafetyReport } from '@/services/api';
+import type React from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/router"
+import Header from "@/components/common/Header"
+import BottomNav from "@/components/BottomNav"
+import ImageGallery from "@/components/ImageGallery"
+import VoiceNoteRecorder from "@/components/VoiceNoteRecorder"
+import SafetyReportForm from "@/components/SafetyReportForm"
 
 interface JobDetails {
-  job_id: number;
-}
-
-interface Photo {
-  image_data: string;
-  image_id: number;
+  job_id: number
+  job_code: string
 }
 
 const SafetyReportPage: React.FC = () => {
-  const [jobDetails, setJobDetails] = useState<JobDetails | null>(null);
-  const [photos, setPhotos] = useState<Photo[]>([]);
-  const [description, setDescription] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
+  const [jobDetails, setJobDetails] = useState<JobDetails | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
   useEffect(() => {
-    const jobDetailsFromSession = sessionStorage.getItem('jobDetails');
+    const jobDetailsFromSession = sessionStorage.getItem("jobDetails")
     if (jobDetailsFromSession) {
-      const jobDetailsParsed = JSON.parse(jobDetailsFromSession);
-      setJobDetails(jobDetailsParsed);
+      setJobDetails(JSON.parse(jobDetailsFromSession))
+      setLoading(false)
     } else {
-      setError('No job details found in session. Please go back to the home page.');
+      setError("No job details found in session. Please go back to the home page.")
+      setLoading(false)
     }
-  }, []);
+  }, [])
 
-  const handleSubmit = async () => {
-    if (!description) {
-      alert('Description is required to submit the safety report.');
-      return;
-    }
-    if (photos.length === 0) {
-      alert('At least one photo is required to submit the safety report.');
-      return;
-    }
-
-    setIsSubmitting(true);
-
+  const addImage = async (jobId: number, imageData: string, type: string) => {
     try {
-      await addSafetyReport({
-        job_id: jobDetails?.job_id || null,
-        description,
-      });
-      router.push('/');
+      const response = await fetch(`/api/jobs/${jobId}/images`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ image_data: imageData, type }),
+      })
+      if (!response.ok) throw new Error("Failed to add image")
+      const newImage = await response.json()
+      return newImage.image
     } catch (error) {
-      console.error('Failed to submit safety report:', error);
-    } finally {
-      setIsSubmitting(false);
+      console.error("Error adding image:", error)
+      throw error
     }
-  };
-
-  if (error) {
-    return (
-      <div className="text-center my-5">
-        <i className="bi bi-exclamation-triangle-fill text-danger" style={{ fontSize: '3rem' }}></i>
-        <h2 className="mt-3">Oops! {error}</h2>
-        <p className="lead">Please check the link or contact your supervisor for assistance.</p>
-      </div>
-    );
   }
 
-  if (!jobDetails) {
-    return (
-      <div className="text-center my-5">
-        <i className="bi bi-arrow-repeat" style={{ fontSize: '3rem' }}></i>
-        <h2 className="mt-3">Loading...</h2>
-      </div>
-    );
+  if (loading) {
+    return <div>Loading...</div>
+  }
+
+  if (error || !jobDetails) {
+    return <div>Error: {error || "Job details not found"}</div>
   }
 
   return (
-    <div style={{ paddingTop: '0px' }}>
-      <Header title="Safety Snap Report" style={{ position: 'fixed', top: 0, width: '100%', zIndex: 1000, backgroundColor: '#007bff', color: '#fff' }} />
-
-      <main className="container-fluid my-4 px-3" style={{ paddingBottom: '120px', overflowY: 'auto', height: 'calc(100vh - 160px)' }}>
-        {/* Image Gallery Section */}
-        <ImageGallery 
-          jobId={jobDetails?.job_id} 
-          addImage={addImage} 
-          type='safety' 
-          fetchOnLoad={false} 
-          photos={photos}
-          setPhotos={setPhotos}
-        />
-
-        {/* Description Field */}
-        <SafetyDescription description={description} setDescription={setDescription} />
-
-        {/* Voice Note Option */}
-        <VoiceNoteRecorder jobId={jobDetails?.job_id} type='safety' />
-
-        {/* Submit Button */}
-        <button
-          className="btn btn-success w-100"
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? 'Submitting...' : 'Submit Report'}
-        </button>
+    <div>
+      <Header title={`Safety Report - ${jobDetails.job_code}`} />
+      <main className="container mt-4">
+        <ImageGallery jobId={jobDetails.job_id} addImage={addImage} type="safety" fetchOnLoad={true} />
+        <VoiceNoteRecorder jobId={jobDetails.job_id} type="safety" />
+        <SafetyReportForm jobId={jobDetails.job_id} />
       </main>
-
-      <BottomNav activePage="safety-report" style={{ position: 'fixed', bottom: 0, width: '100%', zIndex: 1000 }} />
+      <BottomNav activePage="safety-report" />
     </div>
-  );
-};
+  )
+}
 
-export default SafetyReportPage;
+export default SafetyReportPage
 
