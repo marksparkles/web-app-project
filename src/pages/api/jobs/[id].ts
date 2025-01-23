@@ -1,10 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 import { supabase } from "../../../lib/supabase"
+import { generateAISummary } from "../../../lib/ai"
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === "GET") {
-    const { id } = req.query
+  const { id } = req.query
 
+  if (req.method === "GET") {
     try {
       const { data: job, error: jobError } = await supabase
         .from("jobs")
@@ -29,15 +30,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       res.status(500).json({ error: "Error fetching job details" })
     }
   } else if (req.method === "PUT") {
-    const { id } = req.query
-    const { summary, is_reviewed_accurate, status } = req.body
+    const { summary, is_reviewed_accurate, status, generate_ai_summary } = req.body
 
     try {
-      const { data, error } = await supabase
-        .from("jobs")
-        .update({ summary, is_reviewed_accurate, status })
-        .eq("job_id", id)
-        .select()
+      const updatedJob = { summary, is_reviewed_accurate, status }
+
+      if (generate_ai_summary) {
+        const aiSummary = await generateAISummary(summary, generate_ai_summary)
+        updatedJob.summary = aiSummary
+      }
+
+      const { data, error } = await supabase.from("jobs").update(updatedJob).eq("job_id", id).select()
 
       if (error) throw error
 

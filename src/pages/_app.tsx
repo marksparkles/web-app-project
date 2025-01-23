@@ -1,11 +1,18 @@
-import "@/styles/globals.css"
-import "bootstrap/dist/css/bootstrap.min.css"
-import "bootstrap-icons/font/bootstrap-icons.css"
+import { SessionProvider } from "next-auth/react"
 import type { AppProps } from "next/app"
+import { ThemeProvider } from "next-themes"
+import MainLayout from "@/components/layout/MainLayout"
+import "@/styles/globals.css"
 
-function MyApp({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />
+export default function App({ Component, pageProps: { session, ...pageProps } }: AppProps) {
+  return (
+    <SessionProvider session={session}>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <MainLayout>
+          <Component {...pageProps} />
+        </MainLayout>
+      </ThemeProvider>
+    </SessionProvider>
+  )
 }
-
-export default MyApp
 

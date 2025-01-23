@@ -1,77 +1,71 @@
-import { useState, useEffect } from "react"
-import { Settings } from "lucide-react"
-import { Button } from "../../components/ui/button"
-import { Badge } from "../../components/ui/badge"
-import BottomNav from "@/components/BottomNav"
+import { useSession } from "next-auth/react"
+import { useEffect, useState } from "react"
+import { supabase } from "@/lib/supabase"
+import TradesmanDashboard from "@/components/dashboard/TradesmanDashboard"
+import ForemanDashboard from "@/components/dashboard/ForemanDashboard"
+import AdminDashboard from "@/components/dashboard/AdminDashboard"
 
-interface Job {
-  job_id: string
-  job_code: string
-  status: string
-}
-
-export default function JobList() {
-  const [jobs, setJobs] = useState<Job[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+export default function Home() {
+  const { data: session } = useSession()
+  const [jobs, setJobs] = useState([])
+  const [users, setUsers] = useState([])
+  const [assets, setAssets] = useState([])
+  const [pendingReviews, setPendingReviews] = useState(0)
 
   useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-        const response = await fetch("/api/jobs")
-        if (!response.ok) throw new Error("Failed to fetch jobs")
-        const data = await response.json()
-        setJobs(data)
-      } catch (err) {
-        console.error("Error fetching jobs:", err)
-        setError("Failed to load jobs")
-      } finally {
-        setLoading(false)
+    if (session?.user?.role) {
+      fetchJobs()
+      if (session.user.role === "Admin") {
+        fetchUsers()
+        fetchAssets()
+      }
+      if (session.user.role === "Foreman" || session.user.role === "Admin") {
+        fetchPendingReviews()
       }
     }
+  }, [session])
 
-    fetchJobs()
-  }, [])
+  const fetchJobs = async () => {
+    const { data, error } = await supabase.from("jobs").select("*").order("created_at", { ascending: false })
+    if (error) console.error("Error fetching jobs:", error)
+    else setJobs(data)
+  }
 
-  if (loading) return <div>Loading...</div>
-  if (error) return <div>Error: {error}</div>
+  const fetchUsers = async () => {
+    const { data, error } = await supabase.from("users").select("*")
+    if (error) console.error("Error fetching users:", error)
+    else setUsers(data)
+  }
 
-  return (
-    <div className="min-h-screen flex flex-col">
-      <header className="sticky top-0 z-50 flex h-14 items-center justify-between bg-blue-600 px-4">
-        <div className="flex items-center">
-          <div className="h-8 w-8 bg-white rounded" />
-          <h1 className="ml-4 text-xl font-semibold text-white">Job List</h1>
-        </div>
-        <Button variant="ghost" size="icon" className="text-white">
-          <Settings className="h-5 w-5" />
-        </Button>
-      </header>
+  const fetchAssets = async () => {
+    const { data, error } = await supabase.from("assets").select("*")
+    if (error) console.error("Error fetching assets:", error)
+    else setAssets(data)
+  }
 
-      <main className="flex-1 p-4">
-        <ul className="space-y-4">
-          {jobs.map((job) => (
-            <li
-              key={job.job_id}
-              className="p-4 bg-white rounded-lg shadow cursor-pointer"
-              onClick={() => {
-                sessionStorage.setItem("jobDetails", JSON.stringify(job))
-                window.location.href = `/jobs/${job.job_id}`
-              }}
-            >
-              <div className="flex flex-col gap-2">
-                <span className="text-lg font-medium">{job.job_code}</span>
-                <Badge variant="outline" className="w-fit bg-yellow-100 text-yellow-800 border-yellow-300">
-                  {job.status}
-                </Badge>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </main>
+  const fetchPendingReviews = async () => {
+    const { count, error } = await supabase
+      .from("jobs")
+      .select("*", { count: "exact" })
+      .eq("status", "submitted")
+      .eq("is_reviewed_accurate", false)
+    if (error) console.error("Error fetching pending reviews:", error)
+    else setPendingReviews(count || 0)
+  }
 
-      <BottomNav activePage="home" />
-    </div>
-  )
+  if (!session) {
+    return <div>Please sign in to access the dashboard.</div>
+  }
+
+  switch (session.user.role) {
+    case "Tradesman":
+      return <TradesmanDashboard jobs={jobs} />
+    case "Foreman":
+      return <ForemanDashboard jobs={jobs} pendingReviews={pendingReviews} />
+    case "Admin":
+      return <AdminDashboard jobs={jobs} users={users} assets={assets} />
+    default:
+      return <div>Invalid user role.</div>
+  }
 }
 

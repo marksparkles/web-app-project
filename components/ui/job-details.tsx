@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ImageUpload } from "@/components/ui/image-upload"
 import { VoiceNotes } from "@/components/ui/voice-notes"
 import { SafetyReports } from "@/components/ui/safety-reports"
@@ -28,25 +29,11 @@ export default function JobDetails({ jobId }: { jobId: string }) {
   const [job, setJob] = useState<Job | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  // const router = useRouter()
+  const [summarySteps, setSummarySteps] = useState<number>(3)
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false)
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true)
-      try {
-        const response = await fetch(`/api/jobs/${jobId}`)
-        if (!response.ok) throw new Error("Failed to fetch job details")
-        const data = await response.json()
-        setJob(data)
-      } catch (err) {
-        setError("Error fetching job details")
-        console.error(err)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchData()
+    fetchJobDetails()
   }, [jobId])
 
   const fetchJobDetails = async () => {
@@ -80,6 +67,19 @@ export default function JobDetails({ jobId }: { jobId: string }) {
     }
   }
 
+  const generateAISummary = async () => {
+    setIsGeneratingSummary(true)
+    try {
+      await updateJobDetails({ generate_ai_summary: summarySteps })
+      await fetchJobDetails()
+    } catch (err) {
+      setError("Error generating AI summary")
+      console.error(err)
+    } finally {
+      setIsGeneratingSummary(false)
+    }
+  }
+
   if (isLoading) return <div>Loading...</div>
   if (error) return <div>Error: {error}</div>
   if (!job) return <div>No job found</div>
@@ -102,16 +102,19 @@ export default function JobDetails({ jobId }: { jobId: string }) {
             </div>
             <div>
               <Label htmlFor="status">Status</Label>
-              <select
-                id="status"
+              <Select
                 value={job.status}
-                onChange={(e) => updateJobDetails({ status: e.target.value as Job["status"] })}
-                className="w-full p-2 border rounded"
+                onValueChange={(value) => updateJobDetails({ status: value as Job["status"] })}
               >
-                <option value="pending">Pending</option>
-                <option value="draft">Draft</option>
-                <option value="submitted">Submitted</option>
-              </select>
+                <SelectTrigger id="status">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="submitted">Submitted</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label htmlFor="summary">Summary</Label>
@@ -120,6 +123,25 @@ export default function JobDetails({ jobId }: { jobId: string }) {
                 value={job.summary}
                 onChange={(e) => updateJobDetails({ summary: e.target.value })}
               />
+            </div>
+            <div>
+              <Label htmlFor="summarySteps">AI Summary Steps</Label>
+              <Select
+                value={summarySteps.toString()}
+                onValueChange={(value) => setSummarySteps(Number.parseInt(value))}
+              >
+                <SelectTrigger id="summarySteps">
+                  <SelectValue placeholder="Select number of steps" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="3">3 Steps</SelectItem>
+                  <SelectItem value="5">5 Steps</SelectItem>
+                  <SelectItem value="10">10 Steps</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button onClick={generateAISummary} disabled={isGeneratingSummary} className="mt-2">
+                {isGeneratingSummary ? "Generating..." : "Generate AI Summary"}
+              </Button>
             </div>
             <div>
               <Label htmlFor="is_reviewed_accurate">Is Reviewed Accurate</Label>
