@@ -1,5 +1,5 @@
 import { useRouter } from "next/router"
-import JobOverview from "@/components/ui/job-overview"
+import JobOverview from "@/components/ui/JobOverview"
 
 export default function JobPage() {
   const router = useRouter()

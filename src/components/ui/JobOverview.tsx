@@ -3,8 +3,10 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Settings2 } from "lucide-react"
-import { Button } from "../../../components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Error } from "@/components/ui/Error"
+import { Loading } from "@/components/ui/Loading"
 
 interface Task {
   task_id: string
@@ -18,11 +20,17 @@ interface Job {
   job_code: string
   description: string
   status: string
-  worker_name: string
+  created_at: string
+  updated_at: string
   tasks: Task[]
+  worker_name: string
 }
 
-export default function JobOverview({ jobId }: { jobId: string }) {
+interface JobOverviewProps {
+  jobId: string
+}
+
+export default function JobOverview({ jobId }: JobOverviewProps) {
   const [job, setJob] = useState<Job | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -45,8 +53,8 @@ export default function JobOverview({ jobId }: { jobId: string }) {
     fetchJobDetails()
   }, [jobId])
 
-  if (loading) return <div>Loading...</div>
-  if (error) return <div>Error: {error}</div>
+  if (loading) return <Loading />
+  if (error) return <Error message={error} />
   if (!job) return <div>No job found</div>
 
   const pendingTasks = job.tasks.filter((task) => task.status === "pending")
