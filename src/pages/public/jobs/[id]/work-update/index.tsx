@@ -3,7 +3,7 @@ import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
+import { Textarea } from "@/components/ui/Textarea"
 import { Loading } from "@/components/ui/Loading"
 import { Error } from "@/components/ui/Error"
 
