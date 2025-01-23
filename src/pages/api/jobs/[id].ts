@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next"
-import { supabase } from "../../../lib/supabase"
-import { generateAISummary } from "../../../lib/ai"
+import { supabase } from "@/lib/supabase"
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { id } = req.query
@@ -30,32 +29,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       res.status(500).json({ error: "Error fetching job details" })
     }
   } else if (req.method === "PUT") {
-    const { summary, is_reviewed_accurate, status, generate_ai_summary } = req.body
+    const { summary, is_reviewed_accurate, status, ai_summary } = req.body
 
     try {
-      const updatedJob = { summary, is_reviewed_accurate, status }
-
-      if (generate_ai_summary) {
-        const aiSummary = await generateAISummary(summary, generate_ai_summary)
-        updatedJob.summary = aiSummary
-      }
+      const updatedJob = { summary, is_reviewed_accurate, status, ai_summary }
 
       const { data, error } = await supabase.from("jobs").update(updatedJob).eq("job_id", id).select()
 
       if (error) throw error
-
-      let message = "Updated work progress"
-      if (status === "submitted") {
-        message = "Completed work progress"
-
-        await supabase.from("tasks").delete().eq("job_id", id).eq("task_description", "Complete Job")
-      }
-
-      await supabase.from("tasks").insert({
-        job_id: id,
-        task_description: message,
-        status: "completed",
-      })
 
       res.status(200).json({ message: "Job updated successfully", job: data[0] })
     } catch (error) {
