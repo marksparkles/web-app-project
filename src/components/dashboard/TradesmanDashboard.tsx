@@ -2,6 +2,7 @@ import Link from "next/link"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import JobOverview from "@/components/ui/JobOverview"
+import { JobOverviewNew } from "@/components/ui/JobOverviewNew"
 
 export default function TradesmanDashboard({ jobs }: { jobs: any[] }) {
   return (
@@ -27,7 +28,7 @@ export default function TradesmanDashboard({ jobs }: { jobs: any[] }) {
       </div>
       <h2 className="text-xl font-semibold mt-6 mb-4">Recent Jobs</h2>
       {jobs.slice(0, 5).map((job) => (
-        <JobOverview key={job.job_id} jobId={job.job_id} />
+        <JobOverviewNew key={job.job_id} jobId={job.job_id} />
       ))}
     </div>
   )

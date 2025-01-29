@@ -1,23 +1,25 @@
-import "@/styles/globals.css"
-import { Inter } from "next/font/google"
-import type React from "react" // Import React
+"use client"
 
-const inter = Inter({ subsets: ["latin"] })
+import { useState, useEffect } from "react"
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import TradesmanDashboard from "@/components/dashboard/TradesmanDashboard"
+import { JobOverviewNew } from "@/components/ui/JobOverviewNew"
+import { JobDetails } from "@/components/ui/JobDetails"
 
-export const metadata = {
-  title: "Job Management System",
-  description: "Manage your jobs efficiently",
-}
+export default function Home() {
+  const [jobs, setJobs] = useState([])
+  const supabase = createClientComponentClient()
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
-    </html>
-  )
+  useEffect(() => {
+    fetchJobs()
+  }, [])
+
+  const fetchJobs = async () => {
+    const { data, error } = await supabase.from("jobs").select("*").order("created_at", { ascending: false })
+    if (error) console.error("Error fetching jobs:", error)
+    else setJobs(data)
+  }
+
+  return <TradesmanDashboard jobs={jobs} />
 }
 
