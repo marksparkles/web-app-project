@@ -1,20 +1,30 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
+import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs"
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   // Allow public routes without authentication
   if (request.nextUrl.pathname.startsWith("/public/")) {
     return NextResponse.next()
   }
 
-  // For all other routes, check for authentication
-  const authCookie = request.cookies.get("next-auth.session-token")
+  // Create a Supabase client configured to use cookies
+  const res = NextResponse.next()
+  const supabase = createMiddlewareClient({ req: request, res })
 
-  if (!authCookie) {
-    return NextResponse.redirect(new URL("/auth/signin", request.url))
+  // Refresh session if expired - required for Server Components
+  await supabase.auth.getSession()
+
+  // For all other routes, check for authentication
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user && request.nextUrl.pathname !== "/login") {
+    return NextResponse.redirect(new URL("/login", request.url))
   }
 
-  return NextResponse.next()
+  return res
 }
 
 export const config = {

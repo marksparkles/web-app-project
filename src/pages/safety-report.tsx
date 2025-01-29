@@ -1,72 +1,56 @@
-import type React from "react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
-import Header from "@/components/common/Header"
-import BottomNav from "@/components/BottomNav"
-import ImageGallery from "@/components/ImageGallery"
-import VoiceNoteRecorder from "@/components/VoiceNoteRecorder"
-import SafetyReportForm from "@/components/ui/SafetyReportForm"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
+import { supabase } from "@/lib/supabase"
 
-interface JobDetails {
-  job_id: string
-  job_code: string
-}
-
-const SafetyReportPage: React.FC = () => {
-  const [jobDetails, setJobDetails] = useState<JobDetails | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+export default function SafetyReport() {
   const router = useRouter()
+  const { jobId } = router.query
+  const [job, setJob] = useState(null)
+  const [report, setReport] = useState("")
 
   useEffect(() => {
-    const jobDetailsFromSession = sessionStorage.getItem("jobDetails")
-    if (jobDetailsFromSession) {
-      setJobDetails(JSON.parse(jobDetailsFromSession))
-      setLoading(false)
-    } else {
-      setError("No job details found in session. Please go back to the home page.")
-      setLoading(false)
+    if (jobId) {
+      fetchJobDetails()
     }
-  }, [])
+  }, [jobId])
 
-  const addImage = async (jobId: string, imageData: string, type: string) => {
-    try {
-      const response = await fetch(`/api/jobs/${jobId}/images`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ image_data: imageData, type }),
-      })
-      if (!response.ok) throw new Error("Failed to add image")
-      const newImage = await response.json()
-      return newImage.image
-    } catch (error) {
-      console.error("Error adding image:", error)
-      throw error
+  const fetchJobDetails = async () => {
+    const { data, error } = await supabase.from("jobs").select("*").eq("job_id", jobId).single()
+
+    if (error) console.error("Error fetching job:", error)
+    else setJob(data)
+  }
+
+  const submitSafetyReport = async () => {
+    const { data, error } = await supabase.from("safety_reports").insert({ job_id: jobId, report_text: report })
+
+    if (error) console.error("Error submitting safety report:", error)
+    else {
+      alert("Safety report submitted successfully")
+      setReport("")
     }
   }
 
-  if (loading) {
-    return <div>Loading...</div>
-  }
-
-  if (error || !jobDetails) {
-    return <div>Error: {error || "Job details not found"}</div>
-  }
+  if (!job) return <div>Loading...</div>
 
   return (
-    <div>
-      <Header title={`Safety Report - ${jobDetails.job_code}`} />
-      <main className="container mt-4">
-        <ImageGallery jobId={jobDetails.job_id} addImage={addImage} type="safety" fetchOnLoad={true} />
-        <VoiceNoteRecorder jobId={jobDetails.job_id} type="safety" />
-        <SafetyReportForm jobId={jobDetails.job_id} />
-      </main>
-      <BottomNav activePage="safety-report" />
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Safety Report for Job: {job.job_code}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Textarea
+          value={report}
+          onChange={(e) => setReport(e.target.value)}
+          placeholder="Describe the safety issue here..."
+          className="mb-4"
+        />
+        <Button onClick={submitSafetyReport}>Submit Safety Report</Button>
+      </CardContent>
+    </Card>
   )
 }
-
-export default SafetyReportPage
 
