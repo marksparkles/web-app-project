@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
@@ -17,6 +18,7 @@ interface Job {
 export default function JobOverview({ jobId }: { jobId: string }) {
   const [job, setJob] = useState<Job | null>(null)
   const [loading, setLoading] = useState(true)
+  const router = useRouter()
   const supabase = createClientComponentClient()
 
   useEffect(() => {
@@ -38,7 +40,7 @@ export default function JobOverview({ jobId }: { jobId: string }) {
     }
 
     fetchJobDetails()
-  }, [jobId, supabase]) // Added supabase to the dependency array
+  }, [jobId, supabase])
 
   if (loading) return <div>Loading...</div>
   if (!job) return <div>No job found</div>
@@ -59,15 +61,9 @@ export default function JobOverview({ jobId }: { jobId: string }) {
           <strong>Description:</strong> {job.description}
         </p>
         <div className="mt-4 space-x-2">
-          <Link href={`/public/jobs/${job.job_id}/work-update`}>
-            <Button>Update Work Progress</Button>
-          </Link>
-          <Link href={`/public/jobs/${job.job_id}/asset-survey`}>
-            <Button>Scan Asset</Button>
-          </Link>
-          <Link href={`/public/jobs/${job.job_id}/safety-report`}>
-            <Button>Report Safety Issue</Button>
-          </Link>
+          <Button onClick={() => router.push(`/public/jobs/${job.job_id}/work-update`)}>Update Work Progress</Button>
+          <Button onClick={() => router.push(`/public/jobs/${job.job_id}/asset-survey`)}>Scan Asset</Button>
+          <Button onClick={() => router.push(`/public/jobs/${job.job_id}/safety-report`)}>Report Safety Issue</Button>
         </div>
       </CardContent>
     </Card>
