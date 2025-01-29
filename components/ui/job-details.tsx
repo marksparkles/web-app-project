@@ -9,9 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ImageUpload } from "@/components/ui/image-upload"
-import { VoiceNotes } from "@/components/ui/voice-notes"
-import { SafetyReports } from "@/components/ui/safety-reports"
-import { AssetDetails } from "@/components/ui/asset-details"
+import { VoiceNotes } from "@/components/ui/VoiceNotes"
+import { SafetyReports } from "@/components/ui/SafetyReports"
+import { AssetDetails } from "@/components/ui/AssetDetails"
 
 interface Job {
   job_id: string
