@@ -9,10 +9,6 @@ interface PageProps {
 }
 
 export default function JobPage({ params }: PageProps) {
-  // Validate the job ID format
-  if (!params.id.match(/^JOB\d{3}$/)) {
-    notFound()
-  }
 
   return (
     <main className="flex min-h-screen flex-col items-center p-8 bg-background text-foreground">
