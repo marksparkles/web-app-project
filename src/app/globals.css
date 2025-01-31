@@ -2,32 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: 0 0% 0%;
-  --foreground: 0 0% 100%;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
-  }
-}
-
-html {
-  background: black;
-}
-
 body {
-  background: black;
+  background-color: black;
   color: white;
-  margin: 0;
-  padding: 0;
-}
-
-@layer base {
-  body {
-    @apply bg-black text-white;
-  }
 }
 
